@@ -10,6 +10,8 @@ class Browser extends StatefulWidget {
 class _BrowserState extends State<Browser> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return const Center(
+      child: Text("Browser"),
+    );
   }
 }
