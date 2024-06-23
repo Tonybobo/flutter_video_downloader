@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:provider/provider.dart';
-import 'package:video_downloader/src/models/web_view.dart';
 import 'package:video_downloader/src/providers/broswer_provider.dart';
+import 'package:video_downloader/src/providers/web_view_provider.dart';
 import 'package:video_downloader/src/screens/browser/widgets/webview_tab.dart';
 
 class EmptyTab extends StatefulWidget {
@@ -16,18 +16,15 @@ class _EmptyTabState extends State<EmptyTab> {
   final _controller = TextEditingController();
 
   void openNewTab(String value) {
-    var browserProvider = Provider.of<BrowserProvider>(context, listen: true);
+    var browserProvider = Provider.of<BrowserProvider>(context, listen: false);
     var settings = browserProvider.getSettings();
 
     browserProvider.addTab(WebViewTab(
       key: GlobalKey(),
-      webViewModel: WebViewModel(
+      webViewProvider: WebViewProvider(
         url: WebUri(value.startsWith("http")
             ? value
             : settings.searchEngine.searchUrl + value),
-        javascriptConsoleResult: [],
-        javascriptConsoleHistory: [],
-        loadedResource: [],
       ),
     ));
   }

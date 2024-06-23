@@ -12,9 +12,9 @@ class WebViewModel {
   bool loaded;
   bool isDesktopMode;
   bool isIncognitoMode;
-  List<Widget> javascriptConsoleResult;
-  List<String> javascriptConsoleHistory;
-  List<LoadedResource> loadedResource;
+  List<Widget>? javascriptConsoleResult;
+  List<String>? javascriptConsoleHistory;
+  List<LoadedResource>? loadedResource;
   bool isSSL;
   int? windowId;
   InAppWebViewSettings? settings;
@@ -33,9 +33,9 @@ class WebViewModel {
     this.progress = 0.0,
     this.isDesktopMode = false,
     this.isIncognitoMode = false,
-    required this.javascriptConsoleResult,
-    required this.javascriptConsoleHistory,
-    required this.loadedResource,
+    this.javascriptConsoleResult,
+    this.javascriptConsoleHistory,
+    this.loadedResource,
     this.loaded = false,
     this.isSSL = false,
     this.windowId,
@@ -45,7 +45,12 @@ class WebViewModel {
     this.findInteractionController,
     this.screenshot,
     this.needsToCompleteInitialLoad = true,
-  });
+  }) {
+    javascriptConsoleResult = javascriptConsoleResult ?? <Widget>[];
+    javascriptConsoleHistory = javascriptConsoleHistory ?? <String>[];
+    loadedResource = loadedResource ?? <LoadedResource>[];
+    settings = settings ?? InAppWebViewSettings();
+  }
 
   static WebViewModel? fromMap(Map<String, dynamic>? map) {
     return map != null

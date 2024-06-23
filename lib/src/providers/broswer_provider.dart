@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -12,7 +11,6 @@ import 'package:video_downloader/src/models/browser.dart';
 import 'package:video_downloader/src/models/browser_setting.dart';
 import 'package:video_downloader/src/models/favourite.dart';
 import 'package:video_downloader/src/models/web_archive.dart';
-import 'package:video_downloader/src/models/web_view.dart';
 import 'package:video_downloader/src/providers/web_view_provider.dart';
 import 'package:video_downloader/src/screens/browser/widgets/webview_tab.dart';
 import 'package:collection/collection.dart';
@@ -43,10 +41,10 @@ class BrowserProvider extends ChangeNotifier {
     _browserModel.webViewTabs.add(webViewTab);
     _browserModel.currentTabIndex = _browserModel.webViewTabs.length - 1;
 
-    webViewTab.webViewModel.tabIndex = _browserModel.currentTabIndex;
+    webViewTab.webViewProvider.tabIndex = _browserModel.currentTabIndex;
 
     _browserModel.currentWebViewProvider
-        .updateWithValue(webViewTab.webViewModel);
+        .updateWithValue(webViewTab.webViewProvider);
 
     notifyListeners();
   }
@@ -57,7 +55,7 @@ class BrowserProvider extends ChangeNotifier {
 
     if (_browserModel.currentTabIndex >= 0) {
       _browserModel.currentWebViewProvider
-          .updateWithValue(webViewTabs.last.webViewModel);
+          .updateWithValue(webViewTabs.last.webViewProvider);
     }
 
     notifyListeners();
@@ -66,22 +64,26 @@ class BrowserProvider extends ChangeNotifier {
   void closeTab(int index) {
     final webViewTab = _browserModel.webViewTabs[index];
     _browserModel.webViewTabs.removeAt(index);
-    InAppWebViewController.disposeKeepAlive(webViewTab.webViewModel.keepAlive);
+    InAppWebViewController.disposeKeepAlive(
+        webViewTab.webViewProvider.keepAlive);
 
     _browserModel.currentTabIndex = _browserModel.webViewTabs.length - 1;
 
     for (int i = index; i < _browserModel.webViewTabs.length; i++) {
-      _browserModel.webViewTabs[i].webViewModel.tabIndex = i;
+      _browserModel.webViewTabs[i].webViewProvider.tabIndex = i;
     }
 
     if (_browserModel.currentTabIndex >= 0) {
       _browserModel.currentWebViewProvider.updateWithValue(_browserModel
-          .webViewTabs[_browserModel.currentTabIndex].webViewModel);
+          .webViewTabs[_browserModel.currentTabIndex].webViewProvider);
     } else {
-      _browserModel.currentWebViewProvider.updateWithValue(WebViewModel(
+      _browserModel.currentWebViewProvider.updateWithValue(
+        WebViewProvider(
           javascriptConsoleResult: [],
           javascriptConsoleHistory: [],
-          loadedResource: []));
+          loadedResources: [],
+        ),
+      );
     }
   }
 
@@ -90,7 +92,7 @@ class BrowserProvider extends ChangeNotifier {
       _browserModel.currentTabIndex = index;
     }
     _browserModel.currentWebViewProvider
-        .updateWithValue(_browserModel.webViewTabs[index].webViewModel);
+        .updateWithValue(_browserModel.webViewTabs[index].webViewProvider);
 
     notifyListeners();
   }
@@ -98,14 +100,17 @@ class BrowserProvider extends ChangeNotifier {
   void closeAllTabs() {
     for (final webViewTab in _browserModel.webViewTabs) {
       InAppWebViewController.disposeKeepAlive(
-          webViewTab.webViewModel.keepAlive);
+          webViewTab.webViewProvider.keepAlive);
     }
     _browserModel.webViewTabs.clear();
     _browserModel.currentTabIndex = -1;
-    _browserModel.currentWebViewProvider.updateWithValue(WebViewModel(
+    _browserModel.currentWebViewProvider.updateWithValue(
+      WebViewProvider(
         javascriptConsoleResult: [],
         javascriptConsoleHistory: [],
-        loadedResource: []));
+        loadedResources: [],
+      ),
+    );
 
     notifyListeners();
   }
@@ -258,11 +263,11 @@ class BrowserProvider extends ChangeNotifier {
 
         List<WebViewTab> webViewTabs = webViewTabList
             .map((e) => WebViewTab(
-                key: GlobalKey(), webViewModel: WebViewModel.fromMap(e)!))
+                key: GlobalKey(), webViewProvider: WebViewProvider.fromMap(e)!))
             .toList();
 
         webViewTabs.sort((a, b) =>
-            a.webViewModel.tabIndex!.compareTo(b.webViewModel.tabIndex!));
+            a.webViewProvider.tabIndex!.compareTo(b.webViewProvider.tabIndex!));
 
         addFavourites(favourites);
         addWebArchives(webArchives);

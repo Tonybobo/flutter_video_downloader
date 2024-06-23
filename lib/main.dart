@@ -1,7 +1,6 @@
 // ignore_for_file: non_constant_identifier_names, constant_identifier_names
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:video_downloader/src/constants/pages.dart';
@@ -85,26 +84,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
       body: SafeArea(
-        child: PopScope(
-          canPop: false,
-          onPopInvoked: (_) async {
-            if (_selectedIndex == 0) {
-              SystemNavigator.pop();
-            } else {
-              setState(() {
-                _selectedIndex = 0;
-              });
-            }
-          },
-          child: IndexedStack(
-            index: _selectedIndex,
-            children: pages,
-          ),
+        child: IndexedStack(
+          index: _selectedIndex,
+          children: pages,
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(

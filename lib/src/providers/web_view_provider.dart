@@ -6,11 +6,26 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:video_downloader/src/models/web_view.dart';
 
 class WebViewProvider extends ChangeNotifier {
-  WebViewModel _webViewModel = WebViewModel(
-    javascriptConsoleHistory: <String>[],
-    javascriptConsoleResult: <Widget>[],
-    loadedResource: <LoadedResource>[],
-  );
+  WebViewModel _webViewModel = WebViewModel();
+
+  WebViewProvider(
+      {WebViewModel? webViewModel,
+      WebUri? url,
+      List<Widget>? javascriptConsoleResult,
+      List<String>? javascriptConsoleHistory,
+      List<LoadedResource>? loadedResources,
+      int? windowId,
+      bool? isIncognitoMode}) {
+    _webViewModel.windowId = windowId;
+    _webViewModel.isIncognitoMode = isIncognitoMode ?? false;
+    _webViewModel = webViewModel ?? WebViewModel();
+    _webViewModel.javascriptConsoleResult =
+        javascriptConsoleResult ?? <Widget>[];
+    _webViewModel.url = url;
+    _webViewModel.javascriptConsoleHistory =
+        javascriptConsoleHistory ?? <String>[];
+    _webViewModel.loadedResource = loadedResources ?? <LoadedResource>[];
+  }
 
   int? get tabIndex => _webViewModel.tabIndex;
 
@@ -84,8 +99,18 @@ class WebViewProvider extends ChangeNotifier {
     }
   }
 
-  UnmodifiableListView<Widget> get javascriptConsoleResults =>
-      UnmodifiableListView(_webViewModel.javascriptConsoleResult);
+  UnmodifiableListView<String> get javascriptConsoleHistory =>
+      UnmodifiableListView(_webViewModel.javascriptConsoleHistory!);
+
+  set javascriptConsoleHistories(List<String> value) {
+    if (!listEquals(value, _webViewModel.javascriptConsoleHistory)) {
+      _webViewModel.javascriptConsoleHistory = value;
+      notifyListeners();
+    }
+  }
+
+  UnmodifiableListView<Widget> get javascriptConsoleResult =>
+      UnmodifiableListView(_webViewModel.javascriptConsoleResult!);
 
   set javascriptConsoleResults(List<Widget> value) {
     if (!listEquals(value, _webViewModel.javascriptConsoleResult)) {
@@ -95,12 +120,12 @@ class WebViewProvider extends ChangeNotifier {
   }
 
   void addJavascriptConsoleResults(Widget value) {
-    _webViewModel.javascriptConsoleResult.add(value);
+    _webViewModel.javascriptConsoleResult?.add(value);
     notifyListeners();
   }
 
   UnmodifiableListView<LoadedResource> get loadedResource =>
-      UnmodifiableListView(_webViewModel.loadedResource);
+      UnmodifiableListView(_webViewModel.loadedResource!);
 
   set loadedResource(List<LoadedResource> value) {
     if (!listEquals(value, _webViewModel.loadedResource)) {
@@ -110,7 +135,7 @@ class WebViewProvider extends ChangeNotifier {
   }
 
   void addLoadedResource(LoadedResource value) {
-    _webViewModel.loadedResource.add(value);
+    _webViewModel.loadedResource?.add(value);
     notifyListeners();
   }
 
@@ -123,7 +148,51 @@ class WebViewProvider extends ChangeNotifier {
     }
   }
 
-  void updateWithValue(WebViewModel webViewModel) {
+  InAppWebViewController? get webViewController =>
+      _webViewModel.webViewController;
+
+  set webViewController(InAppWebViewController? value) {
+    _webViewModel.webViewController = value;
+  }
+
+  PullToRefreshController? get pullToRefreshController =>
+      _webViewModel.pullToRefreshController;
+
+  set pullToRefreshController(PullToRefreshController? value) {
+    _webViewModel.pullToRefreshController = value;
+  }
+
+  FindInteractionController? get findInteractionController =>
+      _webViewModel.findInteractionController;
+
+  set findInteractionController(FindInteractionController? value) {
+    _webViewModel.findInteractionController = value;
+  }
+
+  bool get needsToCompleteInitialLoad =>
+      _webViewModel.needsToCompleteInitialLoad;
+
+  set needsToCompleteInitialLoad(bool value) {
+    _webViewModel.needsToCompleteInitialLoad = value;
+  }
+
+  InAppWebViewSettings? get settings => _webViewModel.settings;
+
+  set settings(InAppWebViewSettings? value) {
+    _webViewModel.settings = value;
+  }
+
+  InAppWebViewKeepAlive get keepAlive => _webViewModel.keepAlive;
+
+  int? get windowId => _webViewModel.windowId;
+
+  Uint8List? get screenshot => _webViewModel.screenshot;
+
+  set screenshot(Uint8List? value) {
+    _webViewModel.screenshot = value;
+  }
+
+  void updateWithValue(WebViewProvider webViewModel) {
     _webViewModel = WebViewModel(
         tabIndex: webViewModel.tabIndex,
         url: webViewModel.url,
@@ -141,6 +210,10 @@ class WebViewProvider extends ChangeNotifier {
         webViewController: webViewModel.webViewController,
         pullToRefreshController: webViewModel.pullToRefreshController,
         findInteractionController: webViewModel.findInteractionController);
+  }
+
+  static WebViewProvider? fromMap(Map<String, dynamic> model) {
+    return WebViewProvider(webViewModel: WebViewModel.fromMap(model));
   }
 
   Map<String, dynamic>? toMap() {

@@ -22,7 +22,7 @@ class BrowserModel {
   Map<String, dynamic> toMap() {
     return {
       "favourites": favourites.map((e) => e.toMap()).toList(),
-      "webViewTabs": webViewTabs.map((e) => e.webViewModel.toMap()).toList(),
+      "webViewTabs": webViewTabs.map((e) => e.webViewProvider.toMap()).toList(),
       "webArchives":
           webArchive.map((key, value) => MapEntry(key, value.toMap())),
       "currentTabIndex": currentTabIndex,
