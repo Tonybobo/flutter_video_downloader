@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_downloader/src/providers/broswer_provider.dart';
 import 'package:video_downloader/src/providers/web_view_provider.dart';
+import 'package:video_downloader/src/screens/browser/widgets/app_bar/browser_app_bar.dart';
 import 'package:video_downloader/src/screens/browser/widgets/empty_tab.dart';
 import 'package:video_downloader/src/screens/browser/widgets/webview_tab.dart';
 
@@ -84,7 +85,7 @@ class _BrowserState extends State<Browser> with SingleTickerProviderStateMixin {
           }
         },
         child: Scaffold(
-          // appBar: Text("App Bar"),
+          appBar: const BrowserAppBar(),
           body: _buildWebViewTabsContent(),
         ),
       ),
@@ -112,32 +113,9 @@ class _BrowserState extends State<Browser> with SingleTickerProviderStateMixin {
 
     var stackChildren = <Widget>[
       browserProvider.getCurrentTab() ?? Container(),
-      _createProgressIndicator(),
     ];
     return Stack(
       children: stackChildren,
-    );
-  }
-
-  Widget _createProgressIndicator() {
-    return Selector<WebViewProvider, double>(
-      selector: (context, webViewProvider) => webViewProvider.progress,
-      builder: (context, progress, child) {
-        if (progress >= 1.0) {
-          return Container();
-        }
-        return PreferredSize(
-          preferredSize: const Size(double.infinity, 20.0),
-          child: SizedBox(
-            height: 20.0,
-            child: LinearProgressIndicator(
-              value: 80.0,
-              color: Colors.blue[300],
-              minHeight: 20,
-            ),
-          ),
-        );
-      },
     );
   }
 

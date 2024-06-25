@@ -272,6 +272,7 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
           var requestFocusNodeHrefResult =
               await _webViewController?.requestFocusNodeHref();
           if (requestFocusNodeHrefResult != null) {
+            if (!mounted) return;
             showDialog(
                 context: context,
                 builder: (context) {
