@@ -188,8 +188,8 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         widget.webViewProvider.isSSL = Util.urlIsSecure(url!);
         widget.webViewProvider.url = url;
         widget.webViewProvider.loaded = false;
-        widget.webViewProvider.loadedResource = [];
-        widget.webViewProvider.javascriptConsoleHistories = [];
+        widget.webViewProvider.setLoadedResource([]);
+        widget.webViewProvider.setJavascriptConsoleHistories([]);
 
         if (isCurrentTab(currentWebViewProvider)) {
           currentWebViewProvider.updateWithValue(widget.webViewProvider);

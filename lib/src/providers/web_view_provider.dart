@@ -102,7 +102,7 @@ class WebViewProvider extends ChangeNotifier {
   UnmodifiableListView<String> get javascriptConsoleHistory =>
       UnmodifiableListView(_webViewModel.javascriptConsoleHistory!);
 
-  set javascriptConsoleHistories(List<String> value) {
+  setJavascriptConsoleHistories(List<String> value) {
     if (!listEquals(value, _webViewModel.javascriptConsoleHistory)) {
       _webViewModel.javascriptConsoleHistory = value;
       notifyListeners();
@@ -112,7 +112,7 @@ class WebViewProvider extends ChangeNotifier {
   UnmodifiableListView<Widget> get javascriptConsoleResult =>
       UnmodifiableListView(_webViewModel.javascriptConsoleResult!);
 
-  set javascriptConsoleResults(List<Widget> value) {
+  setJavascriptConsoleResults(List<Widget> value) {
     if (!listEquals(value, _webViewModel.javascriptConsoleResult)) {
       _webViewModel.javascriptConsoleResult = value;
       notifyListeners();
@@ -127,7 +127,7 @@ class WebViewProvider extends ChangeNotifier {
   UnmodifiableListView<LoadedResource> get loadedResource =>
       UnmodifiableListView(_webViewModel.loadedResource!);
 
-  set loadedResource(List<LoadedResource> value) {
+  setLoadedResource(List<LoadedResource> value) {
     if (!listEquals(value, _webViewModel.loadedResource)) {
       _webViewModel.loadedResource = value;
       notifyListeners();
@@ -193,23 +193,21 @@ class WebViewProvider extends ChangeNotifier {
   }
 
   void updateWithValue(WebViewProvider webViewModel) {
-    _webViewModel = WebViewModel(
-        tabIndex: webViewModel.tabIndex,
-        url: webViewModel.url,
-        title: webViewModel.title,
-        favicon: webViewModel.favicon,
-        progress: webViewModel.progress,
-        loaded: webViewModel.loaded,
-        isDesktopMode: webViewModel.isDesktopMode,
-        isIncognitoMode: webViewModel.isIncognitoMode,
-        javascriptConsoleResult: webViewModel.javascriptConsoleResult,
-        javascriptConsoleHistory: webViewModel.javascriptConsoleHistory,
-        loadedResource: webViewModel.loadedResource,
-        isSSL: webViewModel.isSSL,
-        settings: webViewModel.settings,
-        webViewController: webViewModel.webViewController,
-        pullToRefreshController: webViewModel.pullToRefreshController,
-        findInteractionController: webViewModel.findInteractionController);
+    tabIndex = webViewModel.tabIndex;
+    url = webViewModel.url;
+    title = webViewModel.title;
+    favicon = webViewModel.favicon;
+    loaded = webViewModel.loaded;
+    isDesktopMode = webViewModel.isDesktopMode;
+    isIncognitoMode = webViewModel.isIncognitoMode;
+    setJavascriptConsoleResults(webViewModel.javascriptConsoleResult);
+    setJavascriptConsoleHistories(webViewModel.javascriptConsoleHistory);
+    setLoadedResource(webViewModel.loadedResource);
+    isSSL = webViewModel.isSSL;
+    settings = webViewModel.settings;
+    webViewController = webViewModel.webViewController;
+    pullToRefreshController = webViewModel.pullToRefreshController;
+    findInteractionController = webViewModel.findInteractionController;
   }
 
   static WebViewProvider? fromMap(Map<String, dynamic> model) {

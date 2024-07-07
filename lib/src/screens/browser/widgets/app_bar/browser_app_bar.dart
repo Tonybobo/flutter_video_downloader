@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/find_on_page_app_bar.dart';
+import 'package:video_downloader/src/screens/browser/widgets/app_bar/webview_tab_app_bar.dart';
 
 class BrowserAppBar extends StatefulWidget implements PreferredSizeWidget {
   const BrowserAppBar({super.key})
@@ -25,6 +26,12 @@ class _BrowserAppBarState extends State<BrowserAppBar> {
               });
             },
           )
-        : Placeholder();
+        : WebviewTabAppBar(
+            showFindOnPage: () {
+              setState(() {
+                _isFindingOnPage = true;
+              });
+            },
+          );
   }
 }
