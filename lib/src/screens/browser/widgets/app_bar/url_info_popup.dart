@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_downloader/src/providers/web_view_provider.dart';
+import 'package:video_downloader/src/screens/browser/widgets/app_bar/certificates_info_popup.dart';
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/custom_popup_dialog.dart';
 
 class UrlInfoPopup extends StatefulWidget {
@@ -115,14 +116,14 @@ class _UrlInfoPopupState extends State<UrlInfoPopup> {
                                   widget.transitionDuration.inMilliseconds -
                                       200));
 
-                          //# TODO: Add dialog page
-
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const Placeholder();
-                            },
-                          );
+                          if (context.mounted) {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return const CertificatesInfoPopup();
+                              },
+                            );
+                          }
                         }),
                 ]),
           ),
