@@ -40,8 +40,11 @@ class _EmptyTabState extends State<EmptyTab> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image(image: AssetImage(settings.searchEngine.assetIcon)),
-            const SizedBox(height: 10),
+            Text(
+              settings.searchEngine.name,
+              style: const TextStyle(fontSize: 100.0, letterSpacing: 1.0),
+            ),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -50,25 +53,19 @@ class _EmptyTabState extends State<EmptyTab> {
                     controller: _controller,
                     onSubmitted: (value) => openNewTab(value),
                     textInputAction: TextInputAction.go,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      contentPadding: const EdgeInsets.all(20.0),
                       hintText: "Search",
-                      hintStyle:
-                          TextStyle(color: Colors.black54, fontSize: 25.0),
+                      hintStyle: const TextStyle(
+                        fontSize: 25.0,
+                      ),
                     ),
-                    style: const TextStyle(color: Colors.black, fontSize: 25.0),
+                    style: const TextStyle(fontSize: 25.0),
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
-                    openNewTab(_controller.text);
-                    FocusScope.of(context).unfocus();
-                  },
-                  icon: const Icon(
-                    Icons.search,
-                    color: Colors.black54,
-                    size: 25.0,
-                  ),
-                )
               ],
             )
           ],

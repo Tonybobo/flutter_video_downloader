@@ -17,6 +17,7 @@ import 'package:video_downloader/src/screens/browser/widgets/app_bar/popup_menu_
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/tab_popup_menu_actions.dart';
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/url_info_popup.dart';
 import 'package:video_downloader/src/screens/browser/widgets/webview_tab.dart';
+import 'package:video_downloader/src/screens/settings/main.dart';
 import 'package:video_downloader/src/utils/util.dart';
 
 class WebviewTabAppBar extends StatefulWidget {
@@ -90,16 +91,16 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
           builder: (context, isIncognitoMode, child) {
             return leading != null
                 ? AppBar(
-                    backgroundColor:
-                        isIncognitoMode ? Colors.black87 : Colors.blue,
+                    // backgroundColor:
+                    //     isIncognitoMode ? Colors.black87 : Colors.blue,
                     leading: leading,
                     titleSpacing: 0.0,
                     title: _buildSearchTextField(),
                     actions: _buildActionsMenu(),
                   )
                 : AppBar(
-                    backgroundColor:
-                        isIncognitoMode ? Colors.black87 : Colors.blue,
+                    // backgroundColor:
+                    //     isIncognitoMode ? Colors.black87 : Colors.blue,
                     titleSpacing: 0.0,
                     title: _buildSearchTextField(),
                     actions: _buildActionsMenu(),
@@ -176,13 +177,11 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                 bottom: 10.0,
               ),
               filled: true,
-              fillColor: Colors.white,
               border: outlineBorder,
               focusedBorder: outlineBorder,
               enabledBorder: outlineBorder,
               hintText: "Search or type a URL",
               hintStyle: const TextStyle(
-                color: Colors.black,
                 fontSize: 16.0,
               ),
             ),
@@ -736,10 +735,17 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
       transitionDuration: customPopupDialogTransitionDuration,
       builder: (context) {
         return UrlInfoPopup(
-            route: route!,
-            transitionDuration: customPopupDialogTransitionDuration);
+          route: route!,
+          transitionDuration: customPopupDialogTransitionDuration,
+          onWebViewTabSettingsClicked: () => goToSettingsPage(),
+        );
       },
     );
+  }
+
+  void goToSettingsPage() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const SettingsPage()));
   }
 
   Future<void> takeScreenshotAndShow() async {}
