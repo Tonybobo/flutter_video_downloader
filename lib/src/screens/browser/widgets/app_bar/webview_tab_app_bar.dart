@@ -91,16 +91,12 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
           builder: (context, isIncognitoMode, child) {
             return leading != null
                 ? AppBar(
-                    // backgroundColor:
-                    //     isIncognitoMode ? Colors.black87 : Colors.blue,
                     leading: leading,
                     titleSpacing: 0.0,
                     title: _buildSearchTextField(),
                     actions: _buildActionsMenu(),
                   )
                 : AppBar(
-                    // backgroundColor:
-                    //     isIncognitoMode ? Colors.black87 : Colors.blue,
                     titleSpacing: 0.0,
                     title: _buildSearchTextField(),
                     actions: _buildActionsMenu(),
@@ -170,20 +166,21 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
             controller: _searchController,
             textInputAction: TextInputAction.go,
             decoration: InputDecoration(
+              fillColor: Colors.grey[600],
               contentPadding: const EdgeInsets.only(
-                left: 45.0,
                 top: 10.0,
+                left: 45.0,
                 right: 10.0,
                 bottom: 10.0,
               ),
-              filled: true,
               border: outlineBorder,
               focusedBorder: outlineBorder,
               enabledBorder: outlineBorder,
-              hintText: "Search or type a URL",
+              hintText: "Search or Type a URL",
               hintStyle: const TextStyle(
-                fontSize: 16.0,
-              ),
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 1.1),
             ),
           ),
           IconButton(
@@ -194,6 +191,7 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
               selector: (context, webViewProvider) => webViewProvider.isSSL,
               builder: (context, isSSL, child) {
                 var icon = Icons.info_outline;
+                var brightness = MediaQuery.of(context).platformBrightness;
                 if (webViewProvider.isIncognitoMode) {
                   icon = MaterialCommunityIcons.incognito;
                 } else if (isSSL) {
@@ -206,7 +204,11 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                 }
                 return Icon(
                   icon,
-                  color: isSSL ? Colors.green : Colors.grey,
+                  color: isSSL
+                      ? Colors.green
+                      : brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
                 );
               },
             ),
@@ -347,7 +349,7 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
             child: Text(
               browserProvider.webViewTabs.length.toString(),
               style: const TextStyle(
-                color: Colors.white,
+                // color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 14.0,
               ),
@@ -394,7 +396,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                         padding: const EdgeInsets.all(0.0),
                         icon: const Icon(
                           Icons.arrow_back,
-                          color: Colors.black,
                         ),
                         onPressed: () {
                           webViewController?.goBack();
@@ -408,10 +409,9 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                     SizedBox(
                       width: 35.0,
                       child: IconButton(
-                        padding: const EdgeInsets.all(0.0),
+                        padding: const EdgeInsets.only(bottom: 5.0),
                         icon: const Icon(
                           Icons.arrow_forward,
-                          color: Colors.black,
                         ),
                         onPressed: () {
                           webViewController?.goForward();
@@ -422,10 +422,9 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                     SizedBox(
                       width: 35.0,
                       child: IconButton(
-                        padding: const EdgeInsets.all(0.0),
+                        padding: const EdgeInsets.only(bottom: 5.0),
                         icon: Icon(
                           isFavourite ? Icons.star : Icons.star_outline,
-                          color: Colors.black,
                         ),
                         onPressed: () {
                           setState(() {
@@ -441,10 +440,9 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                     SizedBox(
                       width: 35.0,
                       child: IconButton(
-                        padding: const EdgeInsets.all(0.0),
+                        padding: const EdgeInsets.only(bottom: 5.0),
                         icon: const Icon(
                           Icons.file_download,
-                          color: Colors.black,
                         ),
                         onPressed: () async {
                           Navigator.pop(statefulContext);
@@ -491,9 +489,8 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                     SizedBox(
                       width: 35.0,
                       child: IconButton(
-                        padding: const EdgeInsets.all(0.0),
-                        icon:
-                            const Icon(Icons.info_outline, color: Colors.black),
+                        padding: const EdgeInsets.only(bottom: 5.0),
+                        icon: const Icon(Icons.info_outline),
                         onPressed: () async {
                           Navigator.pop(statefulContext);
 
@@ -505,10 +502,10 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                     SizedBox(
                       width: 35.0,
                       child: IconButton(
-                        padding: const EdgeInsets.all(0.0),
+                        padding: const EdgeInsets.only(bottom: 5.0),
                         icon: const Icon(
-                            MaterialCommunityIcons.cellphone_screenshot,
-                            color: Colors.black),
+                          MaterialCommunityIcons.cellphone_screenshot,
+                        ),
                         onPressed: () async {
                           Navigator.pop(statefulContext);
 
@@ -521,8 +518,8 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                     SizedBox(
                       width: 35.0,
                       child: IconButton(
-                        padding: const EdgeInsets.all(0.0),
-                        icon: const Icon(Icons.refresh, color: Colors.black),
+                        padding: const EdgeInsets.only(bottom: 5.0),
+                        icon: const Icon(Icons.refresh),
                         onPressed: () async {
                           Navigator.pop(statefulContext);
                           await webViewController?.reload();
@@ -532,7 +529,7 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                   ]);
 
                   return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     mainAxisSize: MainAxisSize.max,
                     children: children,
                   );
@@ -553,7 +550,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                       Text(choice),
                       const Icon(
                         Icons.add,
-                        color: Colors.black,
                       )
                     ],
                   ),
@@ -568,7 +564,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                       Text(choice),
                       const Icon(
                         MaterialCommunityIcons.incognito,
-                        color: Colors.black,
                       )
                     ],
                   ),
@@ -583,7 +578,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                       Text(choice),
                       const Icon(
                         Icons.star,
-                        color: Colors.black,
                       )
                     ],
                   ),
@@ -598,7 +592,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                       Text(choice),
                       const Icon(
                         Icons.history,
-                        color: Colors.black,
                       )
                     ],
                   ),
@@ -613,7 +606,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                       Text(choice),
                       const Icon(
                         Icons.offline_pin,
-                        color: Colors.black,
                       )
                     ],
                   ),
@@ -628,7 +620,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                       Text(choice),
                       const Icon(
                         Icons.share,
-                        color: Colors.black,
                       )
                     ],
                   ),
@@ -643,7 +634,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                       Text(choice),
                       const Icon(
                         Icons.settings,
-                        color: Colors.black,
                       )
                     ],
                   ),
@@ -658,7 +648,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                       Text(choice),
                       const Icon(
                         Icons.code,
-                        color: Colors.black,
                       )
                     ],
                   ),
@@ -673,7 +662,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                       Text(choice),
                       const Icon(
                         Icons.find_in_page,
-                        color: Colors.black,
                       )
                     ],
                   ),
@@ -688,7 +676,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                       Text(choice),
                       const Icon(
                         Icons.desktop_windows,
-                        color: Colors.black,
                       )
                     ],
                   ),

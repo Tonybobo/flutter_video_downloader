@@ -59,6 +59,7 @@ class CustomPopupMenuItemState<T, W extends CustomPopupMenuItem<T>>
         alignment: AlignmentDirectional.centerStart,
         constraints: BoxConstraints(minHeight: widget.height),
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        margin: const EdgeInsets.all(0),
         child: buildChild(),
       ),
     );
@@ -66,12 +67,12 @@ class CustomPopupMenuItemState<T, W extends CustomPopupMenuItem<T>>
     if (!widget.enabled) {
       final bool isDark = theme.brightness == Brightness.dark;
       item = IconTheme.merge(
-          data: IconThemeData(opacity: isDark ? 0.5 : 0.38), child: item);
+          data: IconThemeData(opacity: isDark ? 0.4 : 0.38), child: item);
     }
 
     if (widget.isIconButtonRow) {
       return Material(
-        color: Colors.white,
+        color: Colors.transparent,
         child: item,
       );
     }

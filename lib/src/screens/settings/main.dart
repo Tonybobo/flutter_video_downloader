@@ -95,10 +95,10 @@ class _SettingsPageState extends State<SettingsPage> {
         body: const TabBarView(
           children: [
             Center(
-              child: const Text("Cross Platform"),
+              child: Text("Cross Platform"),
             ),
             Center(
-              child: const Text("Android Platform"),
+              child: Text("Android Platform"),
             )
           ],
         ),
