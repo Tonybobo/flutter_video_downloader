@@ -1,21 +1,23 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_font_icons/flutter_font_icons.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:video_downloader/main.dart';
+import 'package:share_extend/share_extend.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:video_downloader/src/models/favourite.dart';
-import 'package:video_downloader/src/models/web_archive.dart';
 import 'package:video_downloader/src/providers/broswer_provider.dart';
 import 'package:video_downloader/src/providers/web_view_provider.dart';
-import 'package:video_downloader/src/screens/browser/widgets/app_bar/animated_flutter_browser_logo.dart';
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/custom_popup_dialog.dart';
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/custom_popup_menu_item.dart';
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/popup_menu_actions.dart';
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/tab_popup_menu_actions.dart';
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/url_info_popup.dart';
+import 'package:video_downloader/src/screens/browser/widgets/custom_image.dart';
 import 'package:video_downloader/src/screens/browser/widgets/webview_tab.dart';
 import 'package:video_downloader/src/screens/settings/main.dart';
 import 'package:video_downloader/src/utils/util.dart';
@@ -85,21 +87,39 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
 
         Widget? leading = _buildAppBarHomePageWidget();
 
-        return Selector<WebViewProvider, bool>(
-          selector: (context, webViewProvider) =>
-              webViewProvider.isIncognitoMode,
-          builder: (context, isIncognitoMode, child) {
+        return Selector<WebViewProvider,
+            ({double progress, bool isIncognitoMode})>(
+          selector: (context, webViewProvider) => (
+            progress: webViewProvider.progress,
+            isIncognitoMode: webViewProvider.isIncognitoMode
+          ),
+          builder: (context, data, child) {
+            log("${data.progress}");
             return leading != null
                 ? AppBar(
                     leading: leading,
                     titleSpacing: 0.0,
                     title: _buildSearchTextField(),
                     actions: _buildActionsMenu(),
+                    bottom: PreferredSize(
+                      preferredSize: const Size(double.infinity, 5.0),
+                      child: LinearProgressIndicator(
+                        color: Colors.blue,
+                        value: data.progress,
+                      ),
+                    ),
                   )
                 : AppBar(
                     titleSpacing: 0.0,
                     title: _buildSearchTextField(),
                     actions: _buildActionsMenu(),
+                    bottom: PreferredSize(
+                      preferredSize: const Size(double.infinity, 5.0),
+                      child: LinearProgressIndicator(
+                        color: Colors.blue,
+                        value: data.progress >= 1.0 ? 1.0 : data.progress,
+                      ),
+                    ),
                   );
           },
         );
@@ -216,21 +236,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
         ],
       ),
     );
-  }
-
-  void addNewTab({WebUri? url, bool? incognitoMode}) {
-    var browserProvider = Provider.of<BrowserProvider>(context, listen: false);
-    var settings = browserProvider.getSettings();
-
-    url ??= settings.homePageEnabled && settings.customUrlHomePage.isNotEmpty
-        ? WebUri(settings.customUrlHomePage)
-        : WebUri(settings.searchEngine.url);
-
-    browserProvider.addTab(WebViewTab(
-      key: GlobalKey(),
-      webViewProvider:
-          WebViewProvider(url: url, isIncognitoMode: incognitoMode ?? false),
-    ));
   }
 
   List<Widget> _buildActionsMenu() {
@@ -441,55 +446,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                       width: 35.0,
                       child: IconButton(
                         padding: const EdgeInsets.only(bottom: 5.0),
-                        icon: const Icon(
-                          Icons.file_download,
-                        ),
-                        onPressed: () async {
-                          Navigator.pop(statefulContext);
-                          if (webViewProvider.url != null &&
-                              webViewProvider.url!.scheme.startsWith("http")) {
-                            var url = webViewProvider.url;
-                            if (url == null) return;
-
-                            String webArchivePath =
-                                "$WEB_ARCHIVE_DIR${Platform.pathSeparator}${url.scheme}-${url.host}${url.path.replaceAll("/", "-")}${DateTime.now().microsecondsSinceEpoch}.${Util.isAndroid() ? WebArchiveFormat.MHT.toValue() : WebArchiveFormat.WEBARCHIVE.toValue()}";
-
-                            String? savedPath =
-                                (await webViewController?.saveWebArchive(
-                                    filePath: webArchivePath, autoname: false));
-
-                            var webArchiveModel = WebArchive(
-                                timestamp: DateTime.now(),
-                                url: url,
-                                path: savedPath,
-                                title: webViewProvider.title,
-                                favicon: webViewProvider.favicon);
-
-                            if (savedPath != null) {
-                              browserProvider.addWebArchive(
-                                  url.toString(), webArchiveModel);
-                              if (statefulContext.mounted) {
-                                ScaffoldMessenger.of(statefulContext)
-                                    .showSnackBar(SnackBar(
-                                        content: Text(
-                                            "${webViewProvider.url} saved offline!")));
-                              }
-                              await browserProvider.save();
-                            } else {
-                              if (statefulContext.mounted) {
-                                ScaffoldMessenger.of(statefulContext)
-                                    .showSnackBar(const SnackBar(
-                                        content: Text("Unable to save!")));
-                              }
-                            }
-                          }
-                        },
-                      ),
-                    ),
-                    SizedBox(
-                      width: 35.0,
-                      child: IconButton(
-                        padding: const EdgeInsets.only(bottom: 5.0),
                         icon: const Icon(Icons.info_outline),
                         onPressed: () async {
                           Navigator.pop(statefulContext);
@@ -596,20 +552,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                     ],
                   ),
                 );
-              case PopupMenuActions.WEB_ARCHIVES:
-                return CustomPopupMenuItem(
-                  enabled: true,
-                  value: choice,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(choice),
-                      const Icon(
-                        Icons.offline_pin,
-                      )
-                    ],
-                  ),
-                );
               case PopupMenuActions.SHARE:
                 return CustomPopupMenuItem(
                   enabled: true,
@@ -638,20 +580,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                     ],
                   ),
                 );
-              case PopupMenuActions.DEVELOPERS:
-                return CustomPopupMenuItem(
-                  enabled: true,
-                  value: choice,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(choice),
-                      const Icon(
-                        Icons.code,
-                      )
-                    ],
-                  ),
-                );
               case PopupMenuActions.FIND_ON_PAGE:
                 return CustomPopupMenuItem(
                   enabled: true,
@@ -676,23 +604,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                       Text(choice),
                       const Icon(
                         Icons.desktop_windows,
-                      )
-                    ],
-                  ),
-                );
-              case PopupMenuActions.INAPPWEBVIEW_PROJECT:
-                return CustomPopupMenuItem(
-                  enabled: true,
-                  value: choice,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(choice),
-                      Container(
-                        padding: const EdgeInsets.only(right: 6),
-                        child: const AnimatedFlutterBrowserLogo(
-                          size: 12.5,
-                        ),
                       )
                     ],
                   ),
@@ -735,7 +646,264 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
         context, MaterialPageRoute(builder: (context) => const SettingsPage()));
   }
 
-  Future<void> takeScreenshotAndShow() async {}
+  Future<void> takeScreenshotAndShow() async {
+    var webViewProvider = Provider.of<WebViewProvider>(context, listen: false);
+    var screenshot = await webViewProvider.webViewController?.takeScreenshot();
 
-  void _popupMenuChoiceAction(String value) {}
+    if (screenshot != null) {
+      var dir = await getApplicationCacheDirectory();
+      File file = File(
+          "${dir.path}/screenshot_${DateTime.now().microsecondsSinceEpoch}.png");
+      await file.writeAsBytes(screenshot);
+
+      if (mounted) {
+        await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Image.memory(screenshot),
+              actions: [
+                ElevatedButton(
+                  onPressed: () async {
+                    await ShareExtend.share(file.path, "image");
+                  },
+                  child: const Text("Share"),
+                )
+              ],
+            );
+          },
+        );
+      }
+
+      file.delete();
+    }
+  }
+
+  void _popupMenuChoiceAction(String value) async {
+    var currentWebViewProvider =
+        Provider.of<WebViewProvider>(context, listen: false);
+
+    switch (value) {
+      case PopupMenuActions.NEW_TAB:
+        addNewTab();
+        break;
+      case PopupMenuActions.NEW_INCOGNITO_TAB:
+        addNewTab(incognitoMode: true);
+        break;
+      case PopupMenuActions.FAVOURITES:
+        showFavourite();
+        break;
+      case PopupMenuActions.HISTORY:
+        showHistory();
+        break;
+      case PopupMenuActions.FIND_ON_PAGE:
+        var isFindInteractionEnabled =
+            currentWebViewProvider.settings?.isFindInteractionEnabled ?? false;
+        var findInteractionController =
+            currentWebViewProvider.findInteractionController;
+        if (Util.isIOS() &&
+            isFindInteractionEnabled &&
+            findInteractionController != null) {
+          await findInteractionController.presentFindNavigator();
+        } else if (widget.showFindOnPage != null) {
+          widget.showFindOnPage!();
+        }
+        break;
+      case PopupMenuActions.SHARE:
+        share();
+        break;
+      case PopupMenuActions.DESKTOP_MODE:
+        toggleDesktopMode();
+        break;
+      case PopupMenuActions.SETTINGS:
+        Future.delayed(
+            const Duration(milliseconds: 300), () => goToSettingsPage());
+        break;
+    }
+  }
+
+  void addNewTab({WebUri? url, bool? incognitoMode}) {
+    var browserProvider = Provider.of<BrowserProvider>(context, listen: false);
+    var settings = browserProvider.getSettings();
+
+    url ??= settings.homePageEnabled && settings.customUrlHomePage.isNotEmpty
+        ? WebUri(settings.customUrlHomePage)
+        : WebUri(settings.searchEngine.url);
+
+    browserProvider.addTab(WebViewTab(
+      key: GlobalKey(),
+      webViewProvider:
+          WebViewProvider(url: url, isIncognitoMode: incognitoMode ?? false),
+    ));
+  }
+
+  void showFavourite() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        var browserProvider =
+            Provider.of<BrowserProvider>(context, listen: true);
+
+        return AlertDialog(
+          contentPadding: const EdgeInsets.all(0.0),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView(
+                children: browserProvider.favourites.map((favourite) {
+              var url = favourite.url;
+              var faviconUrl = favourite.favicon != null
+                  ? favourite.favicon!.url
+                  : WebUri("${url?.origin ?? ""}/favicon.ico");
+
+              return ListTile(
+                leading: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CustomImage(
+                      url: faviconUrl,
+                      maxWidth: 30.0,
+                      height: 30.0,
+                    )
+                  ],
+                ),
+                title: Text(
+                  favourite.title ?? favourite.url?.toString() ?? "",
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(
+                  favourite.url?.toString() ?? "",
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                isThreeLine: true,
+                onTap: () {
+                  setState(() {
+                    addNewTab(url: favourite.url);
+                    Navigator.pop(context);
+                  });
+                },
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          browserProvider.removeFavourite(favourite);
+                          if (browserProvider.favourites.isEmpty) {
+                            Navigator.pop(context);
+                          }
+                        });
+                      },
+                      icon: const Icon(
+                        Icons.close,
+                        size: 20.0,
+                      ),
+                    )
+                  ],
+                ),
+              );
+            }).toList()),
+          ),
+        );
+      },
+    );
+  }
+
+  void showHistory() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        var webViewProvider =
+            Provider.of<WebViewProvider>(context, listen: false);
+
+        return AlertDialog(
+          contentPadding: const EdgeInsets.all(0.0),
+          content: FutureBuilder(
+            future: webViewProvider.webViewController?.getCopyBackForwardList(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Container();
+              }
+
+              WebHistory history = snapshot.data as WebHistory;
+              return SizedBox(
+                width: double.maxFinite,
+                child: ListView(
+                  children: history.list?.reversed.map((item) {
+                        var url = item.url;
+
+                        return ListTile(
+                          leading: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CustomImage(
+                                url: WebUri("${url?.origin ?? ""}/favicon.ico"),
+                                maxWidth: 30.0,
+                                height: 30.0,
+                              )
+                            ],
+                          ),
+                          title: Text(
+                            item.title ?? url.toString(),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text(
+                            url?.toString() ?? "",
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          isThreeLine: true,
+                          onTap: () {
+                            webViewProvider.webViewController?.loadUrl(
+                                urlRequest: URLRequest(url: item.url));
+                            Navigator.pop(context);
+                          },
+                        );
+                      }).toList() ??
+                      [],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void share() {
+    var browserProvider = Provider.of<BrowserProvider>(context, listen: false);
+    var currentWebViewProvider =
+        browserProvider.getCurrentTab()?.webViewProvider;
+    var url = currentWebViewProvider?.url;
+    if (url != null) {
+      Share.share(url.toString(), subject: currentWebViewProvider?.title);
+    }
+  }
+
+  void toggleDesktopMode() async {
+    var browserProvider = Provider.of<BrowserProvider>(context, listen: false);
+    var webViewProvider = browserProvider.getCurrentTab()?.webViewProvider;
+    var webViewController = webViewProvider?.webViewController;
+    var currentWebViewProvider =
+        Provider.of<WebViewProvider>(context, listen: false);
+
+    if (webViewController != null) {
+      webViewProvider?.isDesktopMode = !webViewProvider.isDesktopMode;
+      currentWebViewProvider.isDesktopMode =
+          webViewProvider?.isDesktopMode ?? false;
+
+      var currentSettings = await webViewController.getSettings();
+
+      if (currentSettings != null) {
+        currentSettings.preferredContentMode =
+            webViewProvider?.isDesktopMode ?? false
+                ? UserPreferredContentMode.DESKTOP
+                : UserPreferredContentMode.RECOMMENDED;
+        await webViewController.setSettings(settings: currentSettings);
+      }
+      await webViewController.reload();
+    }
+  }
 }
