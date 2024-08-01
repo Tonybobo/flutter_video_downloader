@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -94,7 +93,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
             isIncognitoMode: webViewProvider.isIncognitoMode
           ),
           builder: (context, data, child) {
-            log("${data.progress}");
             return leading != null
                 ? AppBar(
                     leading: leading,
@@ -102,10 +100,12 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                     title: _buildSearchTextField(),
                     actions: _buildActionsMenu(),
                     bottom: PreferredSize(
-                      preferredSize: const Size(double.infinity, 5.0),
-                      child: LinearProgressIndicator(
-                        color: Colors.blue,
-                        value: data.progress,
+                      preferredSize: const Size(double.infinity, 1.5),
+                      child: SizedBox(
+                        height: 1.5,
+                        child: LinearProgressIndicator(
+                          value: data.progress >= 1.0 ? 0.0 : data.progress,
+                        ),
                       ),
                     ),
                   )
@@ -114,10 +114,12 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                     title: _buildSearchTextField(),
                     actions: _buildActionsMenu(),
                     bottom: PreferredSize(
-                      preferredSize: const Size(double.infinity, 5.0),
-                      child: LinearProgressIndicator(
-                        color: Colors.blue,
-                        value: data.progress >= 1.0 ? 1.0 : data.progress,
+                      preferredSize: const Size(double.infinity, 1.5),
+                      child: SizedBox(
+                        height: 1.5,
+                        child: LinearProgressIndicator(
+                          value: data.progress >= 1.0 ? 0.0 : data.progress,
+                        ),
                       ),
                     ),
                   );

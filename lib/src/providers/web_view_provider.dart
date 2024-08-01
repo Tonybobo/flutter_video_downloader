@@ -196,6 +196,7 @@ class WebViewProvider extends ChangeNotifier {
     tabIndex = webViewModel.tabIndex;
     url = webViewModel.url;
     title = webViewModel.title;
+    progress = webViewModel.progress;
     favicon = webViewModel.favicon;
     loaded = webViewModel.loaded;
     isDesktopMode = webViewModel.isDesktopMode;

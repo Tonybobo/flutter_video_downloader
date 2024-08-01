@@ -342,7 +342,6 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         }
         return NavigationActionPolicy.ALLOW;
       },
-      onDownloadStartRequest: (controller, downloadStartRequest) {},
       onReceivedServerTrustAuthRequest: (controller, challenge) async {
         var sslError = challenge.protectionSpace.sslError;
         if (sslError != null && (sslError.code != null)) {
