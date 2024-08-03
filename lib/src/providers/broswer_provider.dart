@@ -25,6 +25,7 @@ class BrowserProvider extends ChangeNotifier {
   set showTabScroller(bool value) {
     if (value != _browserModel.showTabScroller) {
       _browserModel.showTabScroller = value;
+      notifyListeners();
     }
   }
 

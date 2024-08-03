@@ -356,7 +356,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
             child: Text(
               browserProvider.webViewTabs.length.toString(),
               style: const TextStyle(
-                // color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 14.0,
               ),

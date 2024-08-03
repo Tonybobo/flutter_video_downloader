@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:video_downloader/src/providers/broswer_provider.dart';
 import 'package:video_downloader/src/providers/web_view_provider.dart';
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/browser_app_bar.dart';
+import 'package:video_downloader/src/screens/browser/widgets/app_bar/tab_viewer_app_bar.dart';
 import 'package:video_downloader/src/screens/browser/widgets/empty_tab.dart';
 import 'package:video_downloader/src/screens/browser/widgets/webview_tab.dart';
 
@@ -120,7 +121,14 @@ class _BrowserState extends State<Browser> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildWebViewTabsViewer() {
-    //#TODO: Add Tab Viewers
-    return const Text("Tabs Viewer");
+    var browserProvider = Provider.of<BrowserProvider>(context, listen: true);
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (_) => browserProvider.showTabScroller = false,
+      child: const Scaffold(
+        appBar: TabViewerAppBar(),
+        body: Placeholder(),
+      ),
+    );
   }
 }
