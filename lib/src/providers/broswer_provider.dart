@@ -86,6 +86,7 @@ class BrowserProvider extends ChangeNotifier {
         ),
       );
     }
+    notifyListeners();
   }
 
   void showTab(int index) {
