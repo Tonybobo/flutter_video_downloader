@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_downloader/src/providers/broswer_provider.dart';
@@ -73,68 +72,69 @@ class _TabViewerState extends State<TabViewer> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Material(
-            color: isCurrentTab ? Colors.blue : Colors.black54,
+            color: isCurrentTab ? Colors.grey[400] : Colors.black87,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
               ),
             ),
-            child: ListTile(
-              dense: true,
-              visualDensity: const VisualDensity(vertical: -4),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 0, horizontal: 5.0),
-              minLeadingWidth: 0.0,
-              leading: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CustomImage(
-                    url: faviconUrl,
-                    maxWidth: 20.0,
-                    maxHeight: 20.0,
-                    height: 20.0,
-                  )
-                ],
-              ),
-              title: Text(
-                webViewTab.webViewProvider.title ??
-                    webViewTab.webViewProvider.url.toString(),
-                maxLines: 1,
-                style: TextStyle(
-                  color: webViewTab.webViewProvider.isIncognitoMode
-                      ? Colors.grey
-                      : Colors.white,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    padding: const EdgeInsets.all(0),
-                    constraints: const BoxConstraints(maxHeight: 26),
-                    iconSize: 20,
-                    icon: Icon(
-                      Icons.close,
-                      color: webViewTab.webViewProvider.isIncognitoMode
-                          ? Colors.grey
-                          : Colors.white,
+            child: SizedBox(
+              height: 35.0,
+              child: Center(
+                child: ListTile(
+                  dense: true,
+                  visualDensity: const VisualDensity(vertical: -4),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 0, horizontal: 5.0),
+                  minLeadingWidth: 0.0,
+                  leading: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CustomImage(
+                        url: faviconUrl,
+                        maxWidth: 20.0,
+                        maxHeight: 20.0,
+                        height: 20.0,
+                      )
+                    ],
+                  ),
+                  title: Text(
+                    webViewTab.webViewProvider.title ??
+                        webViewTab.webViewProvider.url.toString(),
+                    maxLines: 1,
+                    style: const TextStyle(
+                      color: Colors.white,
                     ),
-                    onPressed: () {
-                      setState(() {
-                        if (webViewTab.webViewProvider.tabIndex != null) {
-                          browserProvider
-                              .closeTab(webViewTab.webViewProvider.tabIndex!);
-                          if (browserProvider.webViewTabs.isEmpty) {
-                            browserProvider.showTabScroller = false;
-                          }
-                        }
-                      });
-                    },
-                  )
-                ],
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        padding: const EdgeInsets.all(0),
+                        constraints: const BoxConstraints(maxHeight: 26),
+                        iconSize: 25,
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            if (webViewTab.webViewProvider.tabIndex != null) {
+                              browserProvider.closeTab(
+                                  webViewTab.webViewProvider.tabIndex!);
+                              if (browserProvider.webViewTabs.isEmpty) {
+                                browserProvider.showTabScroller = false;
+                              }
+                            }
+                          });
+                        },
+                      )
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

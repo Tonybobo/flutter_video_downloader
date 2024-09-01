@@ -250,6 +250,17 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
               width: 10.0,
             )
           : Container(),
+      SizedBox(
+        child: IconButton(
+          onPressed: () {
+            addNewTab();
+          },
+          icon: const Icon(
+            MaterialCommunityIcons.plus,
+            size: 30.0,
+          ),
+        ),
+      ),
       InkWell(
         key: tabInkWellKey,
         onLongPress: () {
@@ -273,12 +284,8 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                 case TabPopupMenuActions.CLOSE_TABS:
                   iconData = Icons.cancel;
                   break;
-                case TabPopupMenuActions.NEW_TAB:
-                  iconData = Icons.add;
-                  break;
-                case TabPopupMenuActions.NEW_INCOGNITO_TAB:
-                  iconData = MaterialCommunityIcons.incognito;
-                  break;
+                case TabPopupMenuActions.CLOSE_ALL_TABS:
+                  iconData = MaterialCommunityIcons.close_box_multiple_outline;
               }
 
               return PopupMenuItem<String>(
@@ -287,7 +294,7 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                   children: [
                     Icon(
                       iconData,
-                      color: Colors.black,
+                      color: Colors.white,
                     ),
                     Container(
                       padding: const EdgeInsets.only(left: 10.0),
@@ -299,14 +306,11 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
             }).toList(),
           ).then((value) {
             switch (value) {
-              case TabPopupMenuActions.CLOSE_TABS:
+              case TabPopupMenuActions.CLOSE_ALL_TABS:
                 browserProvider.closeAllTabs();
-                break;
-              case TabPopupMenuActions.NEW_TAB:
-                addNewTab();
-                break;
-              case TabPopupMenuActions.NEW_INCOGNITO_TAB:
-                addNewTab(incognitoMode: true);
+              case TabPopupMenuActions.CLOSE_TABS:
+                var current = browserProvider.getCurrentTabIndex();
+                browserProvider.closeTab(current);
                 break;
             }
           });
@@ -345,7 +349,7 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
         },
         child: Container(
           margin: const EdgeInsets.only(
-              left: 10.0, top: 15.0, right: 10.0, bottom: 15.0),
+              left: 5.0, top: 15.0, right: 3.0, bottom: 15.0),
           decoration: BoxDecoration(
             border: Border.all(width: 2.0, color: Colors.white),
             shape: BoxShape.rectangle,
@@ -507,20 +511,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
                       Text(choice),
                       const Icon(
                         Icons.add,
-                      )
-                    ],
-                  ),
-                );
-              case PopupMenuActions.NEW_INCOGNITO_TAB:
-                return CustomPopupMenuItem(
-                  enabled: true,
-                  value: choice,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(choice),
-                      const Icon(
-                        MaterialCommunityIcons.incognito,
                       )
                     ],
                   ),
@@ -687,9 +677,6 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
     switch (value) {
       case PopupMenuActions.NEW_TAB:
         addNewTab();
-        break;
-      case PopupMenuActions.NEW_INCOGNITO_TAB:
-        addNewTab(incognitoMode: true);
         break;
       case PopupMenuActions.FAVOURITES:
         showFavourite();

@@ -3,8 +3,6 @@
 class PopupMenuActions {
   static const String NEW_TAB = "New Tab";
 
-  static const String NEW_INCOGNITO_TAB = "New Incognito Tab";
-
   static const String FAVOURITES = "Favourites";
 
   static const String HISTORY = "History";
@@ -19,7 +17,6 @@ class PopupMenuActions {
 
   static const List<String> choices = [
     NEW_TAB,
-    NEW_INCOGNITO_TAB,
     FAVOURITES,
     HISTORY,
     SHARE,

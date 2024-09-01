@@ -180,6 +180,7 @@ class WebViewProvider extends ChangeNotifier {
 
   set settings(InAppWebViewSettings? value) {
     _webViewModel.settings = value;
+    notifyListeners();
   }
 
   InAppWebViewKeepAlive get keepAlive => _webViewModel.keepAlive;

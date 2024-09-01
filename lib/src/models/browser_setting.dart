@@ -9,8 +9,8 @@ class BrowserSettings {
 
   BrowserSettings({
     this.searchEngine = GoogleSearchEngine,
-    this.homePageEnabled = false,
-    this.customUrlHomePage = "",
+    this.homePageEnabled = true,
+    this.customUrlHomePage = "https://www.google.com",
     this.debuggingEnabled = false,
   });
 
