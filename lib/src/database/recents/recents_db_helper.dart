@@ -1,5 +1,10 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:video_downloader/src/database/recents/recents_query_conditions.dart';
+import 'package:video_downloader/src/database/recents/recents_model.dart';
 
 class RecentsDbHelper {
   RecentsDbHelper._internal();
@@ -33,8 +38,13 @@ class RecentsDbHelper {
     return _database!;
   }
 
+  factory RecentsDbHelper() {
+    return _instance;
+  }
+
   Future<Database> _initDatabase() async {
     String directory = await getDatabasesPath();
+    log("DB Log ===> $directory");
     String path = join(directory, _dbName);
     return openDatabase(
       path,
@@ -45,14 +55,36 @@ class RecentsDbHelper {
   }
 
   Future _onCreate(Database db, int version) async {
-    await db.execute(''' ''');
+    await db.execute('''
+      CREATE TABLE $tableName IF NOT EXISTS (
+        $columnId INTEGER PRIMARY KEY AUTOCREMENT NOT NULL,
+        $columnAuthority TEXT NOT NULL,
+        $url TEXT NOT NULL,
+        $columnCount INTERGER NOT NULL DEFAULT 0,
+        $columnCreatedAt TEXT NOT NULL,
+
+      ) 
+    ''');
   }
 
   Future _onConfigure(Database db) async {
     await db.execute('PRAGMA foreign_keys= ON');
   }
 
-  factory RecentsDbHelper() {
-    return _instance;
+  Future create(RecentsModel recents) async {
+    final db = await _instance.database;
+    await db.insert(_dbName, recents.toMap());
+  }
+
+  Future<List<RecentsModel>> read(RecentsQueryConditions query) async {
+    final db = await _instance.database;
+    final result = await db.query(_dbName,
+        limit: query.limit, offset: query.offset, orderBy: query.orderBy);
+    return result.map((json) => RecentsModel.fromMap(json)).toList();
+  }
+
+  Future close() async {
+    final db = await _instance.database;
+    await db.close();
   }
 }
