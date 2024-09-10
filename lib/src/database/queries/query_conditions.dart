@@ -1,6 +1,6 @@
 import 'package:video_downloader/src/database/recents/recents_db_helper.dart';
 
-class RecentsQueryConditions {
+class QueryConditions {
   int? limit;
   int? offset;
   String? orderBy;

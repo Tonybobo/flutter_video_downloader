@@ -1,5 +1,7 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:video_downloader/src/database/histories/histories_model.dart';
+import 'package:video_downloader/src/database/queries/query_conditions.dart';
 
 class HistoriesDbHelper {
   HistoriesDbHelper._internal();
@@ -10,6 +12,8 @@ class HistoriesDbHelper {
 
   static const columnId = '_id';
 
+  static const columnTitle = 'title';
+
   static const columnUrl = 'url';
 
   static const columnCreatedAt = 'createdAt';
@@ -19,6 +23,10 @@ class HistoriesDbHelper {
   static const _dbVersion = 1;
 
   Database? _database;
+
+  factory HistoriesDbHelper() {
+    return _instance;
+  }
 
   Future<Database> get database async {
     if (_database != null) {
@@ -41,14 +49,39 @@ class HistoriesDbHelper {
   }
 
   Future _onCreate(Database db, int version) async {
-    await db.execute(''' ''');
+    await db.execute('''
+     CREATE TABLE $tableName IF NOT EXISTS (
+        $columnId INTEGER PRIMARY KEY AUTOCREMENT NOT NULL,
+        $columnTitle TEXT ,
+        $url TEXT NOT NULL,
+        $columnCreatedAt TEXT NOT NULL,
+     )
+    ''');
   }
 
   Future _onConfigure(Database db) async {
     await db.execute('PRAGMA foreign_keys= ON');
   }
 
-  factory HistoriesDbHelper() {
-    return _instance;
+  Future create(HistoriesModel history) async {
+    final db = await _instance.database;
+    await db.insert(tableName, history.toMap());
+  }
+
+  Future<List<HistoriesModel>> read(QueryConditions query) async {
+    final db = await _instance.database;
+    final result = await db.query(tableName,
+        orderBy: query.orderBy, limit: query.limit, offset: query.offset);
+    return result.map((json) => HistoriesModel.fromMap((json))).toList();
+  }
+
+  Future deleteById(int id) async {
+    final db = await _instance.database;
+    await db.delete(tableName, where: "_id = ?", whereArgs: [id]);
+  }
+
+  Future deleteAll() async {
+    final db = await _instance.database;
+    await db.delete(tableName);
   }
 }

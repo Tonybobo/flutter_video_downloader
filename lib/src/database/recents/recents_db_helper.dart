@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:video_downloader/src/database/recents/recents_query_conditions.dart';
+import 'package:video_downloader/src/database/queries/query_conditions.dart';
 import 'package:video_downloader/src/database/recents/recents_model.dart';
 
 class RecentsDbHelper {
@@ -73,12 +73,12 @@ class RecentsDbHelper {
 
   Future create(RecentsModel recents) async {
     final db = await _instance.database;
-    await db.insert(_dbName, recents.toMap());
+    await db.insert(tableName, recents.toMap());
   }
 
-  Future<List<RecentsModel>> read(RecentsQueryConditions query) async {
+  Future<List<RecentsModel>> read(QueryConditions query) async {
     final db = await _instance.database;
-    final result = await db.query(_dbName,
+    final result = await db.query(tableName,
         limit: query.limit, offset: query.offset, orderBy: query.orderBy);
     return result.map((json) => RecentsModel.fromMap(json)).toList();
   }
