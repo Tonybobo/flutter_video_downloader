@@ -20,6 +20,7 @@ class BrowserProvider extends ChangeNotifier {
     currentWebViewProvider: WebViewProvider(),
   );
 
+
   bool get showTabScroller => _browserModel.showTabScroller;
 
   set showTabScroller(bool value) {

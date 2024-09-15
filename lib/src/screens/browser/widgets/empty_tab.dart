@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:provider/provider.dart';
+import 'package:video_downloader/src/database/queries/query_conditions.dart';
+import 'package:video_downloader/src/database/recents/recents_db_helper.dart';
+import 'package:video_downloader/src/database/recents/recents_model.dart';
 import 'package:video_downloader/src/providers/broswer_provider.dart';
 import 'package:video_downloader/src/providers/web_view_provider.dart';
 import 'package:video_downloader/src/screens/browser/widgets/webview_tab.dart';
@@ -14,6 +17,16 @@ class EmptyTab extends StatefulWidget {
 
 class _EmptyTabState extends State<EmptyTab> {
   final _controller = TextEditingController();
+  final queryCondition = QueryConditions();
+
+  Future<List<RecentsModel>> fetchRecents() async {
+    final result =  await RecentsDbHelper().read(queryCondition);
+    setState(() {
+      queryCondition.offset = queryCondition.offset! + 5;
+    });
+    return result;
+  }
+
 
   void openNewTab(String value) {
     var browserProvider = Provider.of<BrowserProvider>(context, listen: false);
