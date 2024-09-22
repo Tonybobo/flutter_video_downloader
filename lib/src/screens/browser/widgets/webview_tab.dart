@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_downloader/main.dart';
+import 'package:video_downloader/src/database/histories/histories_db_helper.dart';
+import 'package:video_downloader/src/database/histories/histories_model.dart';
 import 'package:video_downloader/src/providers/broswer_provider.dart';
 import 'package:video_downloader/src/providers/web_view_provider.dart';
 import 'package:video_downloader/src/screens/browser/widgets/javascript_console_result.dart';
@@ -123,6 +127,13 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     );
   }
 
+  Future<void> saveHistory(WebUri url) async {
+    final db = HistoriesDbHelper();
+    final title = await widget.webViewProvider.webViewController?.getTitle();
+    final HistoriesModel model = HistoriesModel(url: url , title: title);
+    await db.create(model);
+  }
+
   InAppWebView _buildWebView() {
     var browserProvider = Provider.of<BrowserProvider>(context, listen: true);
     var settings = browserProvider.getSettings();
@@ -190,6 +201,7 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         widget.webViewProvider.loaded = false;
         widget.webViewProvider.setLoadedResource([]);
         widget.webViewProvider.setJavascriptConsoleHistories([]);
+        await saveHistory(url);
 
         if (isCurrentTab(currentWebViewProvider)) {
           currentWebViewProvider.updateWithValue(widget.webViewProvider);

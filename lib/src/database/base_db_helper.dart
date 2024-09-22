@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:video_downloader/src/database/tables/histories_table.dart';
@@ -30,7 +28,6 @@ class BaseDbHelper {
   Future<Database> _initDatabase() async {
     String directory = await getDatabasesPath();
     String path = join(directory, _dbName);
-    log("DB Log ===> $path");
     return openDatabase(
       path,
       version: _dbVersion,

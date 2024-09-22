@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -8,11 +9,15 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_extend/share_extend.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:video_downloader/src/database/histories/histories_db_helper.dart';
+import 'package:video_downloader/src/database/histories/histories_model.dart';
+import 'package:video_downloader/src/database/queries/query_conditions.dart';
 import 'package:video_downloader/src/models/favourite.dart';
 import 'package:video_downloader/src/providers/broswer_provider.dart';
 import 'package:video_downloader/src/providers/web_view_provider.dart';
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/custom_popup_dialog.dart';
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/custom_popup_menu_item.dart';
+import 'package:video_downloader/src/screens/browser/widgets/app_bar/histories_scroll_list.dart';
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/popup_menu_actions.dart';
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/tab_popup_menu_actions.dart';
 import 'package:video_downloader/src/screens/browser/widgets/app_bar/url_info_popup.dart';
@@ -33,6 +38,10 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
     with SingleTickerProviderStateMixin {
   TextEditingController? _searchController = TextEditingController();
   FocusNode? _focusNode;
+  final ScrollController _scrollController = ScrollController();
+  final List<HistoriesModel> _histories = [];
+  final QueryConditions _historyQueryCondition = QueryConditions();
+  bool _isLoading = false;
 
   GlobalKey tabInkWellKey = GlobalKey();
 
@@ -49,6 +58,8 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_loadMore);
+    getHistories(_historyQueryCondition);
     _focusNode = FocusNode();
     _focusNode?.addListener(() async {
       if (_focusNode != null &&
@@ -71,6 +82,9 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
     _focusNode = null;
     _searchController?.dispose();
     _searchController = null;
+    _scrollController
+      ..removeListener(_loadMore)
+      ..dispose();
     super.dispose();
   }
 
@@ -798,63 +812,37 @@ class _WebviewTabAppBarState extends State<WebviewTabAppBar>
     );
   }
 
+  void _loadMore() {
+    if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent &&
+        !_isLoading) {
+      setState(() {
+        _historyQueryCondition.offset += 10;
+      });
+      getHistories(_historyQueryCondition);
+    }
+  }
+
+  Future<void> getHistories(QueryConditions query) async {
+    setState(() {
+      _isLoading = true;
+    });
+    final db = HistoriesDbHelper();
+    final result = await db.read(query);
+    setState(() {
+      _histories.addAll(result);
+      _isLoading = false;
+    });
+  }
+
   void showHistory() {
     showDialog(
       context: context,
       builder: (context) {
-        var webViewProvider =
-            Provider.of<WebViewProvider>(context, listen: false);
-
-        return AlertDialog(
-          contentPadding: const EdgeInsets.all(0.0),
-          content: FutureBuilder(
-            future: webViewProvider.webViewController?.getCopyBackForwardList(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Container();
-              }
-
-              WebHistory history = snapshot.data as WebHistory;
-              return SizedBox(
-                width: double.maxFinite,
-                child: ListView(
-                  children: history.list?.reversed.map((item) {
-                        var url = item.url;
-
-                        return ListTile(
-                          leading: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CustomImage(
-                                url: WebUri("${url?.origin ?? ""}/favicon.ico"),
-                                maxWidth: 30.0,
-                                height: 30.0,
-                              )
-                            ],
-                          ),
-                          title: Text(
-                            item.title ?? url.toString(),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Text(
-                            url?.toString() ?? "",
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          isThreeLine: true,
-                          onTap: () {
-                            webViewProvider.webViewController?.loadUrl(
-                                urlRequest: URLRequest(url: item.url));
-                            Navigator.pop(context);
-                          },
-                        );
-                      }).toList() ??
-                      [],
-                ),
-              );
-            },
-          ),
+        return const AlertDialog(
+          contentPadding: EdgeInsets.all(0.0),
+          content:
+              SizedBox(width: double.maxFinite, child: HistoriesScrollList()),
         );
       },
     );

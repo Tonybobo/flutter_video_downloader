@@ -1,6 +1,6 @@
 class QueryConditions {
   int? limit;
-  int? offset;
+  int offset = 0;
   String? orderBy;
 
   QueryConditions({limit, offset, orderBy}) {

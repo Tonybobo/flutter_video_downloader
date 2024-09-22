@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:provider/provider.dart';
+import 'package:video_downloader/src/database/histories/histories_db_helper.dart';
+import 'package:video_downloader/src/database/histories/histories_model.dart';
 import 'package:video_downloader/src/database/queries/query_conditions.dart';
 import 'package:video_downloader/src/database/recents/recents_db_helper.dart';
 import 'package:video_downloader/src/database/recents/recents_model.dart';
@@ -22,7 +24,15 @@ class _EmptyTabState extends State<EmptyTab> {
   Future<List<RecentsModel>> fetchRecents() async {
     final result =  await RecentsDbHelper().read(queryCondition);
     setState(() {
-      queryCondition.offset = queryCondition.offset! + 5;
+      queryCondition.offset += 5;
+    });
+    return result;
+  }
+
+  Future<List<HistoriesModel>> fetchHistories() async {
+    final result =  await HistoriesDbHelper().read(queryCondition);
+    setState(() {
+      queryCondition.offset += 5;
     });
     return result;
   }
