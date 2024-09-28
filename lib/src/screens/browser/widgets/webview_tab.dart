@@ -8,6 +8,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:video_downloader/main.dart';
 import 'package:video_downloader/src/database/histories/histories_db_helper.dart';
 import 'package:video_downloader/src/database/histories/histories_model.dart';
+import 'package:video_downloader/src/database/recents/recents_db_helper.dart';
+import 'package:video_downloader/src/database/recents/recents_model.dart';
 import 'package:video_downloader/src/providers/broswer_provider.dart';
 import 'package:video_downloader/src/providers/web_view_provider.dart';
 import 'package:video_downloader/src/screens/browser/widgets/javascript_console_result.dart';
@@ -127,11 +129,12 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     );
   }
 
-  Future<void> saveHistory(WebUri url) async {
+  Future<void> saveHistoryAndRecents(WebUri url) async {
     final db = HistoriesDbHelper();
+    final recentsDb = RecentsDbHelper();
     final title = await widget.webViewProvider.webViewController?.getTitle();
-    final HistoriesModel model = HistoriesModel(url: url , title: title);
-    await db.create(model);
+    await db.create(HistoriesModel(url: url , title: title));
+    await recentsDb.create(RecentsModel(authority: url.authority, url: url));
   }
 
   InAppWebView _buildWebView() {
@@ -201,8 +204,8 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         widget.webViewProvider.loaded = false;
         widget.webViewProvider.setLoadedResource([]);
         widget.webViewProvider.setJavascriptConsoleHistories([]);
-        await saveHistory(url);
 
+        await saveHistoryAndRecents(url);
         if (isCurrentTab(currentWebViewProvider)) {
           currentWebViewProvider.updateWithValue(widget.webViewProvider);
         } else if (widget.webViewProvider.needsToCompleteInitialLoad) {

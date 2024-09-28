@@ -12,7 +12,7 @@ class BaseDbHelper {
 
   static const _dbName = 'videodownloader.db';
 
-  static const _dbVersion = 1;
+  static const _dbVersion = 2;
 
   static const tables = [HistoriesTable.onCreate, RecentsTable.onCreate];
 

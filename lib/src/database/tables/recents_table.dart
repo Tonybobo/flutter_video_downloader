@@ -14,10 +14,11 @@ class RecentsTable {
   static const onCreate = '''
       CREATE TABLE IF NOT EXISTS $tableName(
         $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
-        $columnAuthority TEXT NOT NULL,
+        $columnAuthority TEXT NOT NULL UNIQUE,
         $columnUrl TEXT NOT NULL,
         $columnCount INTEGER NOT NULL DEFAULT 0,
         $columnCreatedAt TEXT NOT NULL
-      ) 
+      ) ;
+      CREATE INDEX url_authority ON recents (authority);
     ''';
 }

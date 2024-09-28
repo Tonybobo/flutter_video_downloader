@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:video_downloader/src/database/base_db_helper.dart';
 import 'package:video_downloader/src/database/histories/histories_model.dart';
 import 'package:video_downloader/src/database/queries/query_conditions.dart';
@@ -27,7 +25,6 @@ class HistoriesDbHelper {
     final db = await _databaseHelper.database;
     final result = await db.query(tableName,
         orderBy: query.orderBy, limit: query.limit, offset: query.offset);
-    log("log ===> ${result.toString()}");
     return result.map((json) => HistoriesModel.fromMap((json))).toList();
   }
 

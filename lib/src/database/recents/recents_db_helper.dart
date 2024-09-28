@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:video_downloader/src/database/base_db_helper.dart';
 import 'package:video_downloader/src/database/queries/query_conditions.dart';
 import 'package:video_downloader/src/database/recents/recents_model.dart';
@@ -18,7 +19,16 @@ class RecentsDbHelper {
 
   Future create(RecentsModel recents) async {
     final db = await _databaseHelper.database;
-    await db.insert(tableName, recents.toMap());
+    final currentRecents = await db.query(tableName  , where: 'authority = ?' , whereArgs: [recents.authority] , limit: 1);
+    if(currentRecents.isEmpty){
+      await db.insert(tableName, recents.toMap());
+    }else{
+      final current  = currentRecents.map((json)=> RecentsModel.fromMap(json)).toList();
+      final result = current[0];
+      result.counts = (result.counts!) + 1;
+      log("Log ==> ${result.id}");
+      await db.update(tableName, result.toMap() , where: '_id = ?', whereArgs: [result.id]);
+    }
   }
 
   Future<List<RecentsModel>> read(QueryConditions query) async {

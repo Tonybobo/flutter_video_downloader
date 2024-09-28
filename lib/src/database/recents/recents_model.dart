@@ -4,14 +4,14 @@ class RecentsModel {
   int? id;
   String authority;
   WebUri url;
-  int count;
+  int? counts = 0;
   DateTime? createdAt;
 
   RecentsModel({
     this.id,
     required this.authority,
     required this.url,
-    required this.count,
+    this.counts,
     this.createdAt,
   });
 
@@ -19,8 +19,8 @@ class RecentsModel {
     var map = <String, Object?>{
       'authority': authority,
       'url': url.toString(),
-      'count': count,
       'createdAt': DateTime.now().toString(),
+      'counts': counts,
     };
     if (id != null) {
       map['_id'] = id;
@@ -34,7 +34,7 @@ class RecentsModel {
       id: map['_id'] as int?,
       authority: map['authority'] as String,
       url: WebUri(map['url']),
-      count: map['count'] as int,
+      counts: map['counts'] as int,
       createdAt: DateTime.tryParse(map['createdAt']),
     );
   }
