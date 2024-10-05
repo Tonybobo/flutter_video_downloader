@@ -26,7 +26,6 @@ class RecentsDbHelper {
       final current  = currentRecents.map((json)=> RecentsModel.fromMap(json)).toList();
       final result = current[0];
       result.counts = (result.counts!) + 1;
-      log("Log ==> ${result.id}");
       await db.update(tableName, result.toMap() , where: '_id = ?', whereArgs: [result.id]);
     }
   }
@@ -35,6 +34,7 @@ class RecentsDbHelper {
     final db = await _databaseHelper.database;
     final result = await db.query(tableName,
         limit: query.limit, offset: query.offset, orderBy: query.orderBy);
+    log(result.toString());
     return result.map((json) => RecentsModel.fromMap(json)).toList();
   }
 
