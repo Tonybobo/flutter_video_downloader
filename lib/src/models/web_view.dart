@@ -53,33 +53,35 @@ class WebViewModel {
   }
 
   static WebViewModel? fromMap(Map<String, dynamic>? map) {
-    return map != null
-        ? WebViewModel(
-            tabIndex: map["tabIndex"],
-            url: map["url"] != null ? WebUri(map["url"]) : null,
-            title: map["title"],
-            favicon: map["favicon"] != null
-                ? Favicon(
-                    url: WebUri(map["favicon"]["url"]),
-                    rel: map["favicon"]["url"],
-                    width: map["favicon"]["width"],
-                    height: map["favicon"]["height"],
-                  )
-                : null,
-            progress: map["progress"],
-            isDesktopMode: map["isDesktopMode"],
-            isIncognitoMode: map["isIncognitoMode"],
-            javascriptConsoleHistory:
-                map["javascriptConsoleHistory"]?.cast<String>(),
-            javascriptConsoleResult:
-                map["javascriptConsoleResult"]?.cast<Widget>(),
-            loadedResource: map["loadedResource"]?.cast<Widget>(),
-            isSSL: map["isSSL"],
-            settings: InAppWebViewSettings.fromMap(
-              map["settings"],
-            ),
-          )
-        : null;
+    WebViewModel? result;
+    if(map != null){
+      result = WebViewModel(
+        tabIndex: map["tabIndex"],
+        url: map["url"] != null ? WebUri(map["url"]) : null,
+        title: map["title"],
+        favicon: map["favicon"] != null
+            ? Favicon(
+          url: WebUri(map["favicon"]["url"]),
+          rel: map["favicon"]["url"],
+          width: map["favicon"]["width"],
+          height: map["favicon"]["height"],
+        )
+            : null,
+        progress: map["progress"],
+        isDesktopMode: map["isDesktopMode"],
+        isIncognitoMode: map["isIncognitoMode"],
+        javascriptConsoleHistory:
+        map["javascriptConsoleHistory"]?.cast<String>(),
+        javascriptConsoleResult:
+        map["javascriptConsoleResult"]?.cast<Widget>(),
+        loadedResource: map["loadedResource"]?.cast<Widget>(),
+        isSSL: map["isSSL"],
+        settings: InAppWebViewSettings.fromMap(
+          map["settings"],
+        ),
+      );
+    }
+    return result;
   }
 
   Map<String, dynamic> toMap() {

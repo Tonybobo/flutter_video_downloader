@@ -20,7 +20,7 @@ class RecentsModel {
       'authority': authority,
       'url': url.toString(),
       'createdAt': DateTime.now().toString(),
-      'counts': counts,
+      'counts': counts ?? 0,
     };
     if (id != null) {
       map['_id'] = id;

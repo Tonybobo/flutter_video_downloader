@@ -6,7 +6,8 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_downloader/src/database/pastwebsites/past_websites_db_helper.dart';
+import 'package:video_downloader/src/database/pastwebsites/past_websites_model.dart';
 import 'package:video_downloader/src/models/browser.dart';
 import 'package:video_downloader/src/models/browser_setting.dart';
 import 'package:video_downloader/src/models/favourite.dart';
@@ -215,6 +216,7 @@ class BrowserProvider extends ChangeNotifier {
   Future<void> save() async {
     _browserModel.timerSave?.cancel();
 
+
     if (DateTime.now().difference(_browserModel.lastTrySave) >=
         const Duration(milliseconds: 400)) {
       _browserModel.lastTrySave = DateTime.now();
@@ -228,16 +230,17 @@ class BrowserProvider extends ChangeNotifier {
   }
 
   Future<void> flush() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString("browser", json.encode(_browserModel.toJson()));
+    final pastWebsites = PastWebsitesModel(id: "browser", source: jsonEncode(_browserModel.toJson()));
+    await PastWebsitesDbHelper().create(pastWebsites);
   }
 
   Future<void> restore() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    final result = await PastWebsitesDbHelper().read();
+    final source = result[0].source;
     Map<String, dynamic> browserData;
 
     try {
-      String? source = prefs.getString("browser");
       if (source != null) {
         browserData = await json.decode(source);
 
@@ -258,12 +261,12 @@ class BrowserProvider extends ChangeNotifier {
             MapEntry(key, WebArchive.fromMap(value?.cast<String, dynamic>())!));
 
         BrowserSettings settings = BrowserSettings.fromMap(
-                browserData["settings"]?.cast<Map<String, dynamic>>()) ??
+                browserData["settings"]) ??
             BrowserSettings();
 
-        List<Map<String, dynamic>> webViewTabList =
-            browserData["webViewTabs"]?.cast<Map<String, dynamic>>() ?? [];
-
+        List<dynamic> webViewTabList =
+            browserData["webViewTabs"];
+        //
         List<WebViewTab> webViewTabs = webViewTabList
             .map((e) => WebViewTab(
                 key: GlobalKey(), webViewProvider: WebViewProvider.fromMap(e)!))

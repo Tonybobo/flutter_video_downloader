@@ -1,6 +1,7 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:video_downloader/src/database/tables/histories_table.dart';
+import 'package:video_downloader/src/database/tables/past_websites_table.dart';
 import 'package:video_downloader/src/database/tables/recents_table.dart';
 
 class BaseDbHelper {
@@ -12,9 +13,9 @@ class BaseDbHelper {
 
   static const _dbName = 'videodownloader.db';
 
-  static const _dbVersion = 2;
+  static const _dbVersion = 3;
 
-  static const tables = [HistoriesTable.onCreate, RecentsTable.onCreate];
+  static const tables = [HistoriesTable.onCreate, RecentsTable.onCreate, PastWebsiteTable.onCreate];
 
   Future<Database> get database async {
     if (_database != null) {

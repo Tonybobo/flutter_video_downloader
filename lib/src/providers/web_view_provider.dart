@@ -213,7 +213,18 @@ class WebViewProvider extends ChangeNotifier {
   }
 
   static WebViewProvider? fromMap(Map<String, dynamic> model) {
-    return WebViewProvider(webViewModel: WebViewModel.fromMap(model));
+    final WebViewModel? webViewModel = WebViewModel.fromMap(model);
+    final result = WebViewProvider(
+      isIncognitoMode: webViewModel!.isIncognitoMode ,
+      javascriptConsoleHistory: webViewModel.javascriptConsoleHistory,
+      javascriptConsoleResult: webViewModel.javascriptConsoleResult,
+      loadedResources: webViewModel.loadedResource,
+      url: webViewModel.url,
+      webViewModel: webViewModel,
+      windowId: webViewModel.windowId
+    );
+
+    return result;
   }
 
   Map<String, dynamic>? toMap() {

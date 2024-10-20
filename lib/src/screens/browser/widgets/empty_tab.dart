@@ -36,10 +36,12 @@ class _EmptyTabState extends State<EmptyTab> {
       orderBy: "counts DESC"
     ));
     final historiesResult =  await HistoriesDbHelper().read(QueryConditions());
-    setState(() {
-      recents.addAll(recentsResult);
-      histories.addAll(historiesResult);
-    });
+    if(mounted){
+      setState(() {
+        recents.addAll(recentsResult);
+        histories.addAll(historiesResult);
+      });
+    }
   }
 
   void openNewTab(String value) {

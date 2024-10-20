@@ -27,7 +27,7 @@ class BrowserSettings {
     return map != null
         ? BrowserSettings(
             searchEngine: SearchEngines[map["searchEngineIndex"]],
-            homePageEnabled: map["homePageEnabled"],
+            homePageEnabled: map["homePageenabled"],
             customUrlHomePage: map["customUrlHomePage"],
             debuggingEnabled: map["debuggingEnabled"])
         : null;
