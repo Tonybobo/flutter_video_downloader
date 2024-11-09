@@ -5,6 +5,6 @@ import 'package:video_downloader/src/screens/browser/browser.dart';
 
 const List<Widget> pages = [
   Browser(),
-  TaskDownlodingScreen(),
+  TaskDownloading(),
   TaskCompletedScreen()
 ];

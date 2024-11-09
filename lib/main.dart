@@ -13,6 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:video_downloader/src/constants/pages.dart';
 import 'package:video_downloader/src/providers/broswer_provider.dart';
+import 'package:video_downloader/src/providers/task_provider.dart';
 import 'package:video_downloader/src/providers/web_view_provider.dart';
 
 late final String WEB_ARCHIVE_DIR;
@@ -42,6 +43,7 @@ void main() async {
         ChangeNotifierProvider(
           create: (context) => WebViewProvider(),
         ),
+        ChangeNotifierProvider(create: (context)=> TaskProvider()),
         ChangeNotifierProxyProvider<WebViewProvider, BrowserProvider>(
           create: (BuildContext context) => BrowserProvider(),
           update: (context, webViewProvider, browserProvider) {
@@ -119,11 +121,13 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     _port.listen((dynamic data) {
+      final taskProvider = Provider.of<TaskProvider>(context , listen: false);
       final taskId = (data as List<dynamic>)[0] as String;
       final status = DownloadTaskStatus.fromInt(data[1] as int);
       final progress = data[2] as int;
       final size = data[3] ?? "";
       // ignore: avoid_print
+      taskProvider.setTaskProgress(taskId, progress, status);
       print(data);
 
       // ignore: avoid_print
