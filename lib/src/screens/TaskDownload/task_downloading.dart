@@ -17,21 +17,17 @@ class _TaskDownloadingState extends State<TaskDownloading> {
     return _build();
   }
 
+  @override
+  void initState() {
+    var taskProvider = Provider.of<TaskProvider>(context , listen: false);
+    taskProvider.fetchOnGoingTask();
+    super.initState();
+  }
+
   Widget _build(){
     var taskProvider = Provider.of<TaskProvider>(context , listen: true);
     var onGoingTask = taskProvider.downloadingTask;
-    return FutureBuilder(
-        future: taskProvider.fetchOnGoingTask(),
-        builder: (context , snapshot) {
-          if (!snapshot.hasData ||
-              snapshot.connectionState != ConnectionState.done) {
-            return const Center(
-              child: Text(
-                "No Task",
-              ),
-            );
-          }
-          return ListView(
+    return onGoingTask.isNotEmpty ? ListView(
             padding: const EdgeInsets.symmetric(vertical: 16),
             children: [
               ...onGoingTask.map(
@@ -82,10 +78,10 @@ class _TaskDownloadingState extends State<TaskDownloading> {
                 },
               )
             ],
-          );
-        }
+          ) : const Center(
+      child: Text("No Ongoing Task"),
     );
-  }
+}
 }
 
 

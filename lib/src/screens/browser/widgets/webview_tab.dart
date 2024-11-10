@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:m3u8_downloader/m3u8_downloader.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_downloader/main.dart';
@@ -10,7 +11,9 @@ import 'package:video_downloader/src/database/histories/histories_db_helper.dart
 import 'package:video_downloader/src/database/histories/histories_model.dart';
 import 'package:video_downloader/src/database/recents/recents_db_helper.dart';
 import 'package:video_downloader/src/database/recents/recents_model.dart';
+import 'package:video_downloader/src/models/task_info.dart';
 import 'package:video_downloader/src/providers/broswer_provider.dart';
+import 'package:video_downloader/src/providers/task_provider.dart';
 import 'package:video_downloader/src/providers/web_view_provider.dart';
 import 'package:video_downloader/src/screens/browser/widgets/javascript_console_result.dart';
 import 'package:video_downloader/src/screens/browser/widgets/long_press_alert_dialog.dart';
@@ -32,6 +35,7 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
   PullToRefreshController? _pullToRefreshController;
   FindInteractionController? _findInteractionController;
   bool _isWindowClosed = false;
+  List<String> m3u8Resources = [];
 
   @override
   void initState() {
@@ -125,7 +129,65 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      child: _buildWebView(),
+      child: Stack(
+        children: [
+          _buildWebView(),
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: FloatingActionButton(
+                backgroundColor: m3u8Resources.isNotEmpty ? Colors.pinkAccent : Colors.grey,
+                onPressed: () {
+                  if(m3u8Resources.isNotEmpty){
+                    show();
+                  }
+                },
+                child: const Icon(Icons.download,size: 30,),
+              ),
+          )
+        ],
+      ),
+    );
+  }
+
+  void show() {
+    var taskProvider = Provider.of<TaskProvider>(context , listen: false);
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return  SizedBox(
+          height: 300, // Set your desired height
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            mainAxisSpacing: 10.0,
+            crossAxisSpacing: 20.0,
+            mainAxisExtent: 100,
+          ),
+            padding: const EdgeInsets.all(10),
+            itemCount: m3u8Resources.length,
+            itemBuilder: (context, index) {
+              var m3u8Url = m3u8Resources[index];
+              var taskInfo = TaskInfo(link: m3u8Url , name: widget.webViewProvider.title, status: DownloadTaskStatus.running , progress: 0);
+              var isExisted = !taskProvider.downloadingTask.every((element) => element?.link != taskInfo.link) || !taskProvider.downloadedTask.every((element) => element?.link != taskInfo.link);
+              return SizedBox(
+                child: ElevatedButton(
+                    onPressed:() {
+                      if(!isExisted){
+                        taskProvider.requestDownload(taskInfo);
+                      }
+                    },
+                    child: isExisted? const Icon(Icons.done): Text(
+                      m3u8Url,
+                      maxLines: 3,
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
+                    ))
+              );
+            },
+          )
+        );
+      },
     );
   }
 
@@ -204,6 +266,7 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         widget.webViewProvider.loaded = false;
         widget.webViewProvider.setLoadedResource([]);
         widget.webViewProvider.setJavascriptConsoleHistories([]);
+        m3u8Resources.clear();
 
         await saveHistoryAndRecents(url);
         if (isCurrentTab(currentWebViewProvider)) {
@@ -341,6 +404,9 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
       },
       onLoadResource: (controller, resource) {
         widget.webViewProvider.addLoadedResource(resource);
+        if(resource.url.toString().contains(RegExp(r'.m3u8', caseSensitive: false))){
+          m3u8Resources.add(resource.url.toString());
+        }
         if (isCurrentTab(currentWebViewProvider)) {
           currentWebViewProvider.updateWithValue(widget.webViewProvider);
         }

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:m3u8_downloader/m3u8_downloader.dart';
 import 'package:provider/provider.dart';
@@ -17,24 +18,21 @@ class _TaskCompletedScreenState extends State<TaskCompletedScreen> {
     return _build();
   }
 
+  @override
+  void initState() {
+    var taskProvider = Provider.of<TaskProvider>(context , listen: false);
+    taskProvider.fetchCompletedTask();
+    super.initState();
+  }
+
+
   Widget _build(){
     var taskProvider = Provider.of<TaskProvider>(context , listen: true);
-    var onGoingTask = taskProvider.downloadingTask;
-    return FutureBuilder(
-        future: taskProvider.fetchOnGoingTask(),
-        builder: (context , snapshot) {
-          if (!snapshot.hasData ||
-              snapshot.connectionState != ConnectionState.done) {
-            return const Center(
-              child: Text(
-                "No Task",
-              ),
-            );
-          }
-          return ListView(
+    var downloadedTask = taskProvider.downloadedTask;
+          return downloadedTask.isNotEmpty ? ListView(
             padding: const EdgeInsets.symmetric(vertical: 16),
             children: [
-              ...onGoingTask.map(
+              ...downloadedTask.map(
                     (item) {
                   final task = item;
                   if (task == null) {
@@ -82,9 +80,9 @@ class _TaskCompletedScreenState extends State<TaskCompletedScreen> {
                 },
               )
             ],
+          ) : const Center(
+            child: Text("No Completed Task"),
           );
         }
-    );
-  }
 }
 
